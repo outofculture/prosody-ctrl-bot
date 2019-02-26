@@ -1,11 +1,16 @@
 import asyncio
+import io
 import re
 
 import aioxmpp
 import aioxmpp.dispatcher
+from omemo_backend_signal import BACKEND as SignalBackend
 
 from prosody_ctrl_bot.config import jidparams, my_jid
 from prosody_ctrl_bot.passwords import make_password
+
+
+DEVICELIST_NODE = 'eu.siacs.conversations.axolotl.devicelist'
 
 
 def execute_prosody(command: str, *interactive_responses: str) -> bool:
@@ -23,7 +28,7 @@ async def main():
         aioxmpp.make_security_layer(jidparams['password']),
     )
 
-    def message_response(msg):
+    def handle_direct_message(msg):
         if not msg.body:
             return
         resp = msg.make_reply()
@@ -67,8 +72,28 @@ async def main():
     dispatch.register_callback(
         aioxmpp.MessageType.CHAT,
         None,
-        message_response,
+        handle_direct_message,
     )
+
+    client.summon(aioxmpp.EntityCapsService)  # prereq for PEP
+    pep = client.summon(aioxmpp.PEPClient)
+    claim = pep.claim_pep_node(
+        DEVICELIST_NODE,
+        notify=True,
+    )
+    # TODO
+    # claim.publish(some_data_to_say_i_have_a_device)
+
+    def handle_devicelist_update(jid, node, item, message=None):
+        buf = io.BytesIO()
+        aioxmpp.xml.write_single_xso(item, buf)
+        # TODO unpack the devicelist from the item
+        # TODO put the device ids into the omemo store
+        # sessionMgr.newDeviceList(devices, jid)
+
+        print(jid, node, buf.getvalue().decode("utf-8"))
+
+    claim.on_item_publish.connect(handle_devicelist_update)
 
     async with client.connected():
         while True:
