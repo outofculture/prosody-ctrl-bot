@@ -49,7 +49,7 @@ async def main():
             else:
                 password = make_password()
                 successful = execute_prosody(
-                    'adduser {}@outofinter.net'.format(username),
+                    'adduser {}@{}'.format(username, my_jid.domain),
                     password,
                     password,
                 )
