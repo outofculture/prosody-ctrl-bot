@@ -1,9 +1,10 @@
 import asyncio
-import random
 import re
 
 import aioxmpp
 import aioxmpp.dispatcher
+
+from prosody_ctrl_bot.passwords import make_password
 
 jidparams = {
     'jid': 'serverbot@outofinter.net',
@@ -11,17 +12,6 @@ jidparams = {
 }
 
 my_jid = aioxmpp.JID.fromstr(jidparams['jid'])
-
-with open('/usr/share/dict/words') as wordsfile:
-    wordlist = wordsfile.read().split('\n')
-
-
-def make_password():
-    passwd = random.choice(wordlist)
-    while len(passwd) < 20:
-        passwd = '{} {}'.format(passwd, random.choice(wordlist))
-    return passwd
-
 
 def execute_prosody(command: str, *interactive_responses: str) -> bool:
     command = 'prosodyctl {}'.format(command)
