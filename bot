@@ -1,0 +1,6 @@
+#!/usr/bin/env python3.7
+import asyncio
+
+from prosody_ctrl_bot import main
+
+asyncio.run(main())

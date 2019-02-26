@@ -1,6 +1,7 @@
 import asyncio
 import io
 import re
+import subprocess
 
 import aioxmpp
 import aioxmpp.dispatcher
@@ -15,11 +16,38 @@ DEVICELIST_NODE = 'eu.siacs.conversations.axolotl.devicelist'
 
 def execute_prosody(command: str, *interactive_responses: str) -> bool:
     command = 'prosodyctl {}'.format(command)
-    if re.search('[^-_ .0-9a-zA-Z]', command) or len(command) > 1023:
+    if re.search('[^-@_ .0-9a-zA-Z]', command) or len(command) > 1023:
         # unsafe
+        print('unsafe command detected')
         return False
     else:
-        return False
+        print('executing prosody command {}'.format(command))
+        proc = subprocess.Popen(
+            command.split(' '),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+        )
+        stdout = io.TextIOWrapper(
+            proc.stdout,
+            encoding='utf-8',
+        )
+        stdout.readline()  # depend on all prosodyctl commands starting with a line of output
+        stdin = io.TextIOWrapper(
+            proc.stdin,
+            encoding='utf-8',
+        )
+        for input_str in interactive_responses:
+            stdin.write('{}\n'.format(input_str))
+        stdin.flush()
+        print(proc.communicate()[0].decode('utf-8'))
+        proc.wait()
+        if proc.returncode != 0:
+            print('process failed')
+            print(proc.returncode)
+            return False
+        else:
+            print('prosodyctl command succeeded')
+            return True
 
 
 async def main():
@@ -38,6 +66,7 @@ async def main():
             if not new_password:
                 resp.body[None] = 'Missing required information. Usage: "password [NEW PASSWORD]'
             else:
+                # TODO strip client info from from_ jid
                 successful = execute_prosody(
                     'passwd {}'.format(msg.from_),
                     new_password,
