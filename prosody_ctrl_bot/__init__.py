@@ -4,14 +4,9 @@ import re
 import aioxmpp
 import aioxmpp.dispatcher
 
+from prosody_ctrl_bot.config import jidparams, my_jid
 from prosody_ctrl_bot.passwords import make_password
 
-jidparams = {
-    'jid': 'serverbot@outofinter.net',
-    # 'password': 'fake',
-}
-
-my_jid = aioxmpp.JID.fromstr(jidparams['jid'])
 
 def execute_prosody(command: str, *interactive_responses: str) -> bool:
     command = 'prosodyctl {}'.format(command)
