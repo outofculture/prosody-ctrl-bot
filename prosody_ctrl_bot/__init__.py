@@ -9,7 +9,7 @@ jidparams = {
     # 'password': 'fake',
 }
 
-jid = aioxmpp.JID.fromstr(jidparams['jid'])
+my_jid = aioxmpp.JID.fromstr(jidparams['jid'])
 
 with open('/usr/share/dict/words') as wordsfile:
     wordlist = wordsfile.read().split('\n')
@@ -29,7 +29,7 @@ def execute_prosody(command: str, *interactive_responses: str) -> bool:
 
 async def main():
     client = aioxmpp.PresenceManagedClient(
-        jid,
+        my_jid,
         aioxmpp.make_security_layer(jidparams['password']),
     )
 
@@ -42,15 +42,34 @@ async def main():
             new_password = command[len('password '):]
             if not new_password:
                 resp.body[None] = 'Missing required information. Usage: "password [NEW PASSWORD]'
-            successful = execute_prosody(
-                'passwd {}'.format(msg.from_),
-                new_password,
-                new_password,
-            )
-            if successful:
-                resp.body[None] = 'Password changed to "{}"'.format(new_password)
             else:
-                resp.body[None] = 'I failed at the one thing you asked of me -_-'
+                successful = execute_prosody(
+                    'passwd {}'.format(msg.from_),
+                    new_password,
+                    new_password,
+                )
+                if successful:
+                    resp.body[None] = 'Password changed to "{}"'.format(new_password)
+                else:
+                    resp.body[None] = 'I failed at the one thing you asked of me -_-'
+        elif command.lower().startswith('new user'):
+            username = command[len('new user '):]
+            if not username:
+                resp.body[None] = 'Missing required information. Usage: "new user [USERNAME]'
+            else:
+                password = make_password()
+                successful = execute_prosody(
+                    'adduser {}@outofinter.net'.format(username),
+                    password,
+                    password,
+                )
+                if successful:
+                    resp.body[None] = 'User {}@outofinter.net created. Tell them that their password is "{}"'.format(
+                        username, password)
+                else:
+                    resp.body[None] = 'I failed at the one thing you asked of me -_-'
+        else:
+            resp.body[None] = 'I have no idea how to respond to that o_O'
 
         client.enqueue(resp)
 
