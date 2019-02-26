@@ -1,5 +1,6 @@
 import asyncio
 import random
+import re
 
 import aioxmpp
 import aioxmpp.dispatcher
@@ -23,8 +24,12 @@ def make_password():
 
 
 def execute_prosody(command: str, *interactive_responses: str) -> bool:
-    'prosodyctl {}'.format(command)
-    return False
+    command = 'prosodyctl {}'.format(command)
+    if re.search('[^-_ .0-9a-zA-Z]', command) or len(command) > 1023:
+        # unsafe
+        return False
+    else:
+        return False
 
 
 async def main():
