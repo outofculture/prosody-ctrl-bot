@@ -1,4 +1,5 @@
 import asyncio
+import random
 
 import aioxmpp
 import aioxmpp.dispatcher
@@ -8,10 +9,22 @@ jidparams = {
     # 'password': 'fake',
 }
 
-to_jid = 'martin@outofinter.net'
-text = 'test message from aio bot'
-
 jid = aioxmpp.JID.fromstr(jidparams['jid'])
+
+with open('/usr/share/dict/words') as wordsfile:
+    wordlist = wordsfile.read().split('\n')
+
+
+def make_password():
+    passwd = random.choice(wordlist)
+    while len(passwd) < 20:
+        passwd = '{} {}'.format(passwd, random.choice(wordlist))
+    return passwd
+
+
+def execute_prosody(command: str, *interactive_responses: str) -> bool:
+    'prosodyctl {}'.format(command)
+    return False
 
 
 async def main():
@@ -21,8 +34,24 @@ async def main():
     )
 
     def message_response(msg):
+        if not msg.body:
+            return
         resp = msg.make_reply()
-        resp.body[None] = 'you said: ' + msg.body.any()
+        command = msg.body.any()
+        if command.lower().startswith('password'):
+            new_password = command[len('password '):]
+            if not new_password:
+                resp.body[None] = 'Missing required information. Usage: "password [NEW PASSWORD]'
+            successful = execute_prosody(
+                'passwd {}'.format(msg.from_),
+                new_password,
+                new_password,
+            )
+            if successful:
+                resp.body[None] = 'Password changed to "{}"'.format(new_password)
+            else:
+                resp.body[None] = 'I failed at the one thing you asked of me -_-'
+
         client.enqueue(resp)
 
     dispatch = client.summon(aioxmpp.dispatcher.SimpleMessageDispatcher)
@@ -35,6 +64,10 @@ async def main():
     async with client.connected():
         while True:
             await asyncio.sleep(1)
+
+
+# to_jid = 'martin@outofinter.net'
+# text = 'test message from aio bot'
 
 # import sys
 #
