@@ -5,7 +5,6 @@ import subprocess
 
 import aioxmpp
 import aioxmpp.dispatcher
-from omemo_backend_signal import BACKEND as SignalBackend
 
 from prosody_ctrl_bot.config import jidparams, my_jid
 from prosody_ctrl_bot.passwords import make_password
