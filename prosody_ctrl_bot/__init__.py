@@ -105,8 +105,9 @@ async def main():
         DEVICELIST_NODE,
         notify=True,
     )
-    # TODO
-    # claim.publish(some_data_to_say_i_have_a_device)
+    # TODO claim.publish(some_data_to_say_i_have_a_device)
+    # TODO make sure my device is in my device list
+    # TODO initialize omemo
 
     def handle_devicelist_update(jid, node, item, message=None):
         buf = io.BytesIO()
