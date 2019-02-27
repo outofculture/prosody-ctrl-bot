@@ -23,6 +23,7 @@ def execute_prosody(command: str, *interactive_responses: str) -> bool:
         print('executing prosody command {}'.format(command))
         proc = subprocess.Popen(
             command.split(' '),
+            shell=False,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
         )
