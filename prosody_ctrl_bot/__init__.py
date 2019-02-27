@@ -26,11 +26,6 @@ def execute_prosody(command: str, *interactive_responses: str) -> bool:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
         )
-        stdout = io.TextIOWrapper(
-            proc.stdout,
-            encoding='utf-8',
-        )
-        stdout.readline()  # depend on all prosodyctl commands starting with a line of output
         stdin = io.TextIOWrapper(
             proc.stdin,
             encoding='utf-8',
