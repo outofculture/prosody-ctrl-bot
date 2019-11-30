@@ -12,13 +12,15 @@ from prosody_ctrl_bot.passwords import make_password
 
 DEVICELIST_NODE = 'eu.siacs.conversations.axolotl.devicelist'
 
+BAD_CHARS = '[^-@_ ./0-9a-zA-Z]'
+
 
 def execute_prosody(command: str, *interactive_responses: str) -> bool:
     command = 'prosodyctl {}'.format(command)
-    match = re.search('[^-@_ ./0-9a-zA-Z]', command)
-    if match or len(command) > 1023:
+    has_bad_chars = re.search(BAD_CHARS, command)
+    if has_bad_chars or len(command) > 1023:
         # super paranoid whitelist
-        print('unsafe command detected: "{}" ({})'.format(command, match.group()))
+        print('unsafe command detected: "{}" ({})'.format(command, has_bad_chars.group()))
         return False
     else:
         print('executing prosody command {}'.format(command))
@@ -71,7 +73,7 @@ async def main():
                 if successful:
                     resp.body[None] = 'Password changed to "{}"'.format(new_password)
                 else:
-                    resp.body[None] = 'I failed at the one thing you asked of me -_-'
+                    resp.body[None] = "Yeah, so... I can maybe only change your password to one that doesn't match {}".format(BAD_CHARS)
         elif command.lower().startswith('new user'):
             username = command[len('new user '):].strip().lower()
             if not username:
