@@ -57,9 +57,9 @@ async def main():
         resp = msg.make_reply()
         command = msg.body.any()
         if command.lower().startswith('password'):
-            new_password = command[len('password '):]
+            new_password = command[len('password '):].strip()
             if not new_password:
-                resp.body[None] = 'Missing required information. Usage: "password [NEW PASSWORD]'
+                resp.body[None] = 'Missing required information. Usage: "password [NEW PASSWORD]" ( trailing whitespace is ignored )'
             else:
                 # TODO strip client info from from_ jid
                 successful = execute_prosody(
@@ -72,9 +72,9 @@ async def main():
                 else:
                     resp.body[None] = 'I failed at the one thing you asked of me -_-'
         elif command.lower().startswith('new user'):
-            username = command[len('new user '):]
+            username = command[len('new user '):].strip().lower()
             if not username:
-                resp.body[None] = 'Missing required information. Usage: "new user [USERNAME]'
+                resp.body[None] = 'Missing required information. Usage: "new user [USERNAME]"'
             else:
                 password = make_password()
                 successful = execute_prosody(
