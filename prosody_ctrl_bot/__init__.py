@@ -11,7 +11,7 @@ from prosody_ctrl_bot.passwords import make_password
 
 
 DEVICELIST_NODE = 'eu.siacs.conversations.axolotl.devicelist'
-
+FAILURE_MESSAGE = 'I failed at the one thing you asked of me -_-'
 BAD_CHARS = '[^-@_ ./0-9a-zA-Z]'
 
 
@@ -73,7 +73,7 @@ async def main():
                 if successful:
                     resp.body[None] = 'Password changed to "{}"'.format(new_password)
                 else:
-                    resp.body[None] = "Yeah, so... I can maybe only change your password to one that doesn't match {}".format(BAD_CHARS)
+                    resp.body[None] = FAILURE_MESSAGE
         elif command.lower().startswith('new user'):
             username = command[len('new user '):].strip().lower()
             if not username:
@@ -89,7 +89,7 @@ async def main():
                     resp.body[None] = 'User {}@outofinter.net created. Tell them that their password is "{}"'.format(
                         username, password)
                 else:
-                    resp.body[None] = 'I failed at the one thing you asked of me -_-'
+                    resp.body[None] = FAILURE_MESSAGE
         else:
             resp.body[None] = 'I have no idea how to respond to that o_O'
 
