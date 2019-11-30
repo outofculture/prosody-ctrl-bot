@@ -1,3 +1,5 @@
 aioxmpp==0.10.3
-OMEMO==0.10.4
-omemo-backend-signal==0.2.3
+OMEMO==0.10.5
+omemo-backend-signal==0.2.4
+ipdb==0.12.2
+ipython==7.9.0

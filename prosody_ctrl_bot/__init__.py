@@ -15,8 +15,8 @@ DEVICELIST_NODE = 'eu.siacs.conversations.axolotl.devicelist'
 
 def execute_prosody(command: str, *interactive_responses: str) -> bool:
     command = 'prosodyctl {}'.format(command)
-    if re.search('[^-@_ .0-9a-zA-Z]', command) or len(command) > 1023:
-        # unsafe
+    if re.search('[^-@_ ./0-9a-zA-Z]', command) or len(command) > 1023:
+        # super paranoid whitelist
         print('unsafe command detected')
         return False
     else:
